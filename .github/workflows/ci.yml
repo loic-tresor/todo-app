@@ -1,0 +1,49 @@
+name: CI - Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t todo-backend:${{ github.sha }} ./backend
+
+      - name: Test backend health endpoint
+        run: |
+          docker run -d --name backend-test \
+            -e DB_HOST=localhost \
+            -e DB_NAME=tododb \
+            -e DB_USER=todouser \
+            -e DB_PASSWORD=todopass \
+            -p 8000:8000 \
+            todo-backend:${{ github.sha }}
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+          docker stop backend-test
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build frontend image
+        run: docker build -t todo-frontend:${{ github.sha }} ./frontend
+
+      - name: Test frontend health endpoint
+        run: |
+          docker run -d --name frontend-test \
+            -e BACKEND_URL=http://localhost:8000 \
+            -p 5000:5000 \
+            todo-frontend:${{ github.sha }}
+          sleep 5
+          curl -f http://localhost:5000/health || exit 1
+          docker stop frontend-test
