@@ -9,6 +9,19 @@ on:
 jobs:
   build-backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: tododb
+          POSTGRES_USER: todouser
+          POSTGRES_PASSWORD: todopass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,13 +32,13 @@ jobs:
       - name: Test backend health endpoint
         run: |
           docker run -d --name backend-test \
+            --network host \
             -e DB_HOST=localhost \
             -e DB_NAME=tododb \
             -e DB_USER=todouser \
             -e DB_PASSWORD=todopass \
-            -p 8000:8000 \
             todo-backend:${{ github.sha }}
-          sleep 5
+          sleep 8
           curl -f http://localhost:8000/health || exit 1
           docker stop backend-test
 
