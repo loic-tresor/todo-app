@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app2-binding
+  namespace: lab
+subjects:
+- kind: ServiceAccount
+  name: app2-sa
+  namespace: lab
+roleRef:
+  kind: Role
+  name: app2-role
+  apiGroup: rbac.authorization.k8s.io

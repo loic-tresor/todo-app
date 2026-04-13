@@ -13,12 +13,23 @@ spec:
       labels:
         app: backend
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - name: backend
         image: todo-backend:v1
         imagePullPolicy: Never
         ports:
         - containerPort: 8000
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
         env:
         - name: DB_HOST
           value: "postgres"

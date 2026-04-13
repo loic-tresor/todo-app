@@ -13,12 +13,23 @@ spec:
       labels:
         app: frontend
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - name: frontend
         image: todo-frontend:v1
         imagePullPolicy: Never
         ports:
         - containerPort: 5000
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
         env:
         - name: BACKEND_URL
           value: "http://backend:8000"

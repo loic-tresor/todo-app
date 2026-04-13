@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2-dvwa
+  namespace: lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2-dvwa
+  template:
+    metadata:
+      labels:
+        app: app2-dvwa
+    spec:
+      serviceAccountName: app2-sa
+      automountServiceAccountToken: false
+      containers:
+      - name: dvwa
+        image: vulnerables/web-dvwa
+        ports:
+        - containerPort: 80
