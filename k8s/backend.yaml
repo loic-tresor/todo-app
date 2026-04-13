@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: todo-backend:v1
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_NAME
+          value: "tododb"
+        - name: DB_USER
+          value: "todouser"
+        - name: DB_PASSWORD
+          value: "todopass"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: todo-app
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 8000
+    targetPort: 8000
